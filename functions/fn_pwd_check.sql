@@ -1,0 +1,5 @@
+USE PP_DDBB;
+-- fn_pwd_check
+GO
+
+CREATE OR ALTER FUNCTION fn_pwd_check (@PASSWORD NVARCHAR(50), )

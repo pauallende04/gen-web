@@ -1,0 +1,15 @@
+USE PP_DDBB;
+
+-- fn_mail_exists
+go
+CREATE OR ALTER FUNCTION fn_mail_exists (@EMAIL NVARCHAR(30))
+RETURNS BIT
+AS
+BEGIN
+    DECLARE @Exists BIT;
+    SET @Exists = (
+        SELECT CASE WHEN EXISTS (SELECT 1 FROM EMAIL WHERE EMAIL = @EMAIL) THEN 1 ELSE 0 END
+    );
+    RETURN @Exists;
+END;
+GO
