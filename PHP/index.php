@@ -1,16 +1,14 @@
 <?php
 
 
-include 'clsBlock.php';
-include 'clsBlockchain.php';
-include 'clsTransaction.php';
+include '.php';
+include '.php';
+include '.php';
 include 'connectDB.php';
-include 'clsDBCommand.php';
+include 'DBCommand.php';
 
 
-$connection = new DBConnection("172.17.0.3","prueba1","sa",'02122004Aa');
-
-
+$connection = new DBConnection("172.17.0.3","PP_DDBB","sa",'02122004Aa'); /*contraseña y algun dato posible cambio*/
 $action = isset($_GET['action']) ? $_GET['action'] :'';
 
 
@@ -21,7 +19,7 @@ if (empty($action)){
    echo "Accion no especificada.";
 }else{
    switch ($action){
-       case"add":
+       case"register":
         $from = isset($_GET['from']) ? $_GET['from'] :'';
         $to = isset($_GET['to']) ? $_GET['to'] :'';
         $amount = isset($_GET['amount']) ? $_GET['amount'] :'';
@@ -33,10 +31,10 @@ if (empty($action)){
             echo 'producto añadido';
         }
            break;
-       case "viewchain":
+       case "login":
             $blockchain->printXML();
                break; 
-       case "validate":
+       case "logout":
             echo "<br>";
             echo "<br> Validating--------------- <br>";
             if ($blockchain->isValid()) {
