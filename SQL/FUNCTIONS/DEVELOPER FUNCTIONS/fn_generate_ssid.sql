@@ -1,6 +1,6 @@
 USE PP_DDBB;
 
--- fn_generate_connect_id
+-- fn_generate_ssid  generar sesion id 
 go
 
 create view v_guid 
@@ -8,7 +8,7 @@ AS
     select newid() guid
 go
 
-CREATE OR ALTER FUNCTION fn_generate_connect_id()
+CREATE OR ALTER FUNCTION fn_generate_ssid()
 returns UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -20,4 +20,4 @@ BEGIN
 END
 GO
 
-select dbo.fn_generate_connect_id();
+select dbo.fn_generate_ssid();
