@@ -29,7 +29,7 @@ EXEC sp_user_login
 --
 SELECT * FROM USER_CONNECTIONS;
 EXEC sp_user_logout
-    @CONNECTION_ID = 'eb19238b-e9f0-45b7-8f3d-988dc209bf19';
+    @CONNECTION_ID = '5b74178a-89a2-4be3-8256-810502d08c79';
 
 --
 SELECT * FROM USERS

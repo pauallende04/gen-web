@@ -16,7 +16,7 @@ DECLARE @ret INT;
     BEGIN
         SET @ret = 409;
         RAISERROR('El nombre de usuario ya está en uso.', 16, 1);
-        RETURN;
+        RETURN @ret;
     END
 
     -- Mail
@@ -24,7 +24,7 @@ DECLARE @ret INT;
     BEGIN
         SET @ret = 409;
         RAISERROR('El email ya está en uso.', 16, 1);
-        RETURN;
+        RETURN @ret;
     END
 
     --Email valid
@@ -32,7 +32,7 @@ DECLARE @ret INT;
     BEGIN
         SET @ret = 409;
         RAISERROR('El email no cumple los requisitos.', 16, 1);
-        RETURN;
+        RETURN @ret;
     END
 
     --Contraseña
@@ -40,7 +40,7 @@ DECLARE @ret INT;
     BEGIN
         SET @ret = 450;
         RAISERROR('La contraseña debe contener mas de 10 carácteres, donde deberás usar una mayúscula, una minúscula, un número y un carácter especial', 16, 1);
-        RETURN;
+        RETURN @ret;
     END
     
     EXEC sp_wdev_user_insert @USERNAME, @NAME, @LASTNAME, @PASSWORD, @EMAIL;
@@ -53,7 +53,7 @@ DECLARE @ret INT;
     ELSE
     BEGIN
         SET @ret = 200;
-        RETURN;
+        RETURN @ret;
     END
 
     RETURN @ret;

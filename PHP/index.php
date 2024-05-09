@@ -3,7 +3,7 @@
 include 'connectDB.php';
 include 'DBCommand.php';
 
-$connection = new DBConnection('Server=172.17.0.3', 1433 , 'PP_DDBB', 'sa', ' Informatica55_'); /*contraseña y algun dato posible cambio*/
+$connection = new DBConnection('172.17.0.2,1433', 'PP_DDBB', 'sa', ' Informatica55_'); /*contraseña y algun dato posible cambio*/
 $action = isset($_GET['action']) ? $_GET['action'] :'';
 
 if (empty($action)){
@@ -16,7 +16,7 @@ if (empty($action)){
             $lastname = isset($_GET['lastname']) ? $_GET['lastname'] :'';
             $password = isset($_GET['password']) ? $_GET['password'] :'';
             $email = isset($_GET['email']) ? $_GET['email'] : '';
-
+            
             if (empty($username) || empty($name) || empty($lastname) || empty($password) || empty($email)){
                 echo "Todos los campos son obligatorios.";
             } else {
@@ -32,6 +32,8 @@ if (empty($action)){
                 // Ejecutar el procedimiento almacenado
                 $result = $dbCommand->execute();
 
+                
+
                 if ($result == 200) {
                     echo "Usuario registrado exitosamente.";
                 } elseif ($result == 409) {
@@ -39,11 +41,13 @@ if (empty($action)){
                 } elseif ($result == 450) {
                     echo "La contraseña no cumple con los requisitos de seguridad.";
                 } else {
-                    echo "Error desconocido al registrar usuario.";
+                    echo $result;
                 }
+                // echo "Error desconocido al registrar usuario." ;
             }
             break;
-    
+        
+        case "":
     }
 }
 ?>
