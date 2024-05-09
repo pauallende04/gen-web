@@ -19,13 +19,21 @@ DECLARE @ret INT;
         RETURN;
     END
 
-    -- -- Mail
-    -- IF dbo.fn_mail_exists(@EMAIL) = 1
-    -- BEGIN
-    --     SET @ret = 409;
-    --     RAISERROR('El email ya está en uso.', 16, 1);
-    --     RETURN;
-    -- END
+    -- Mail
+    IF dbo.fn_mail_exists(@EMAIL) = 1
+    BEGIN
+        SET @ret = 409;
+        RAISERROR('El email ya está en uso.', 16, 1);
+        RETURN;
+    END
+
+    --Email valid
+    IF dbo.fn_mail_isvalid(@EMAIL) = 0
+    BEGIN
+        SET @ret = 409;
+        RAISERROR('El email no cumple los requisitos.', 16, 1);
+        RETURN;
+    END
 
     --Contraseña
     IF dbo.fn_pwd_checkpolicy(@PASSWORD) = 0
@@ -39,7 +47,7 @@ DECLARE @ret INT;
     
     IF @@ROWCOUNT > 0
     BEGIN
-        PRINT 'Usuario registrado exitosamente.';
+        PRINT 'Usuario logeado exitosamente.';
         SET @ret = 200;
     END
     ELSE
@@ -51,15 +59,17 @@ DECLARE @ret INT;
     RETURN @ret;
 END;
 
--- GO
--- EXEC sp_user_register 
---     @USERNAME = 'BlowFlow',
---     @NAME = 'Pau',
---     @LASTNAME = 'Allende',
---     @PASSWORD = 'Contraseña#123',
---     @EMAIL = 'blowflow@example.com'
+GO
+EXEC sp_user_register 
+    @USERNAME = 'BlowFlow',
+    @NAME = 'Pau',
+    @LASTNAME = 'Allende',
+    @PASSWORD = 'Contraseña#123',
+    @EMAIL = 'blowflow@example.com'
 
--- SELECT * FROM USERS;
+SELECT * FROM USERS;
 
--- -- DELETE FROM USERS WHERE id=1;
--- DELETE FROM USERS;
+-- DELETE FROM USERS WHERE id=1;
+DELETE FROM USER_CONNECTIONS;
+DELETE FROM USERS;
+

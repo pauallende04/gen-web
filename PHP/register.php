@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Conecta a la base de datos
     include 'connectDB.php';
     include 'DBCommand.php';
-    $connection = new DBConnection("172.17.0.3","PP_DDBB","sa",'Informatica55_');
+    $connection = new DBConnection("172.17.0.3","PP_DDBB","sa",' Informatica55_');
     $pdoObject = $connection->getPDOObject();
 
     // Prepara y ejecuta el procedimiento almacenado para registrar al usuario
