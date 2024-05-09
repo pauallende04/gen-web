@@ -24,12 +24,12 @@ DECLARE @REGISTER_CODE INT;
 
 END;
 
-EXEC sp_wdev_user_insert 
-    @USERNAME = 'TOR',
-    @NAME = 'Pau',
-    @LASTNAME = 'Allende',
-    @PASSWORD = 'contraseña',
-    @EMAIL = 'correoTOR@example.com'
+-- EXEC sp_wdev_user_insert 
+--     @USERNAME = 'TOR',
+--     @NAME = 'Pau',
+--     @LASTNAME = 'Allende',
+--     @PASSWORD = 'contraseña',
+--     @EMAIL = 'correoTOR@example.com'
 
 go
 

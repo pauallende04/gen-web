@@ -12,7 +12,8 @@ BEGIN
 
     IF (dbo.fn_user_exists(@USERNAME) = 0)
     BEGIN
-        SET @ret = 409; -- Usuario no encontrado
+        SET @ret = 409;
+        -- Usuario no encontrado
         RAISERROR('El nombre de usuario no existe.', 16, 1);
         RETURN;
     END
@@ -20,15 +21,17 @@ BEGIN
     BEGIN
         IF (dbo.fn_user_state(@USERNAME) = 0)
         BEGIN
-            SET @ret = 423; -- Cuenta inactiva o bloqueada
+            SET @ret = 423;
+            -- Cuenta inactiva o bloqueada
             RAISERROR('La cuenta del usuario está inactiva o bloqueada.', 16, 1);
             RETURN;
         END
         ELSE
         BEGIN
-            IF (dbo.fn_pwd_check(@PASSWORD, @USERNAME) = 0)
+            IF (dbo.fn_pwd_isvalid(@PASSWORD, @USERNAME) = 0)
             BEGIN
-                SET @ret = 423; -- Contraseña incorrecta
+                SET @ret = 423;
+                -- Contraseña incorrecta
                 RAISERROR('La contraseña es incorrecta.', 16, 1);
                 RETURN;
             END
@@ -37,12 +40,17 @@ BEGIN
                 DECLARE @CONNECTION_ID UNIQUEIDENTIFIER;
                 SET @CONNECTION_ID = dbo.fn_generate_ssid();
 
-                INSERT INTO USER_CONNECTIONS (CONNECTION_ID, USER_ID, DATE_CONNECTED)
-                VALUES (@CONNECTION_ID, (SELECT ID FROM USERS WHERE USERNAME = @USERNAME), GETDATE());
+                INSERT INTO USER_CONNECTIONS
+                    (CONNECTION_ID, USER_ID, DATE_CONNECTED)
+                VALUES
+                    (@CONNECTION_ID, (SELECT ID
+                        FROM USERS
+                        WHERE USERNAME = @USERNAME), GETDATE());
 
                 IF @@ROWCOUNT = 1
                 BEGIN
-                    SET @ret = 0; -- Éxito
+                    SET @ret = 0;
+                    -- Éxito
                     PRINT 'Usuario loggeado correctamente. El connection_id es: ' + CONVERT(VARCHAR(50), @CONNECTION_ID);
                 END
             END

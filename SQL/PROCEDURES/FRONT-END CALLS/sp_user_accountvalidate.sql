@@ -1,63 +1,61 @@
 USE PP_DDBB;
-
--- sp_user_accountvalidate
 GO
+
 CREATE OR ALTER PROCEDURE sp_user_accountvalidate
-@USERNAME NVARCHAR(25),
-@REGISTER_CODE INT
-AS 
+    @USERNAME NVARCHAR(25),
+    @REGISTER_CODE INT
+AS
 BEGIN
-	DECLARE @ACTUAL_CODE INT;
+    DECLARE @UserID INT;
+    DECLARE @UserStatus INT;
+    DECLARE @UserRegisterCode INT;
 
-    select @ACTUAL_CODE = REGISTER_CODE
-    FROM USERS
-    WHERE ID = @ID
-
-    DECLARE @ret INT;
-    SET @ret = -1;
-    if (dbo.fn_user_exists(@USERNAME) = 0)
+    -- Verificar si el usuario existe
+    IF NOT EXISTS (SELECT 1 FROM USERS WHERE USERNAME = @USERNAME)
     BEGIN
-        SET @ret = 21; -- Código de error 21: Usuario no existe en la base de datos.
-        print 'El usuario indicado para activar no existe';
+        -- Usuario no encontrado
+        RAISERROR('El usuario especificado no existe.', 16, 1);
+        RETURN;
     END
-    ELSE IF (dbo.fn_user_exists(@USERNAME) = 1) -- Si existe el usuario, continua con la ejecución de la procedure
+
+    -- Obtener el ID, estado y register code del usuario
+    SELECT @UserID = ID, @UserStatus = STATUS, @UserRegisterCode = REGISTER_CODE
+    FROM USERS WHERE USERNAME = @USERNAME;
+
+    -- Verificar si el usuario ya está activo
+    IF @UserStatus = 1
     BEGIN
-        if (dbo.fn_user_state(@USERNAME) = 1)
-        BEGIN
-            print 'El usuario ya esta activo.';
-            set @ret = 50 -- Código de error 50: Usuario ya activo.
-        END
-        ELSE IF (dbo.fn_user_state(@USERNAME) = 2)
-        BEGIN
-            IF @actual_code = @REGISTER_CODE
-            BEGIN
-                UPDATE users SET state = 2 WHERE USERNAME = @USERNAME;
-                print 'Usuario activado. '
-                set @ret = 0;
-            END
-            ELSE
-            BEGIN
-                print 'Codigo de verificación incorrecto.'
-                set @ret = 90;
-            END
-        END
+        -- La cuenta ya está activada
+        RAISERROR('La cuenta del usuario ya está activada.', 16, 1);
+        RETURN;
     END
-END
-    
 
+    -- Verificar si el código de registro coincide
+    IF @REGISTER_CODE <> @UserRegisterCode
+    BEGIN
+        -- Código de registro incorrecto
+        RAISERROR('El código de registro proporcionado no es válido.', 16, 1);
+        RETURN;
+    END
 
+    -- Actualizar el estado del usuario a activo (1)
+    UPDATE USERS SET STATUS = 1 WHERE ID = @UserID;
 
+    -- Verificar si se actualizó correctamente
+    IF @@ROWCOUNT = 0
+    BEGIN
+        -- No se actualizó ningún registro, probablemente debido a un problema de concurrencia
+        RAISERROR('No se pudo actualizar el estado del usuario.', 16, 1);
+        RETURN;
+    END
 
+    -- Éxito
+    PRINT 'El usuario ' + @USERNAME + ' ha sido activado correctamente.';
+END;
+GO
 
--- USE PP_DDBB;
+EXEC sp_user_accountvalidate
+    @USERNAME = 'BlowFlow',
+    @REGISTER_CODE = 10133;
 
--- -- sp_user_accountvalidate
--- GO
--- CREATE OR ALTER PROCEDURE sp_user_accountvalidate
--- @USERNAME NVARCHAR(25),
--- @PASSWORD NVARCHAR(50)
--- AS 
--- BEGIN
--- 	DECLARE @UserID INT;
---     FROM USERS
---     WHERE USERNAME = @USERNAME AND PASSWORD = 
+SELECT * FROM USERS;
