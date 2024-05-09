@@ -51,15 +51,15 @@ DECLARE @ret INT;
     RETURN @ret;
 END;
 
-GO
-EXEC sp_user_register 
-    @USERNAME = 'BlowFlow',
-    @NAME = 'Pau',
-    @LASTNAME = 'Allende',
-    @PASSWORD = 'Contraseña#123',
-    @EMAIL = 'blowflow@example.com'
+-- GO
+-- EXEC sp_user_register 
+--     @USERNAME = 'BlowFlow',
+--     @NAME = 'Pau',
+--     @LASTNAME = 'Allende',
+--     @PASSWORD = 'Contraseña#123',
+--     @EMAIL = 'blowflow@example.com'
 
-SELECT * FROM USERS;
+-- SELECT * FROM USERS;
 
--- DELETE FROM USERS WHERE id=1;
-DELETE FROM USERS;
+-- -- DELETE FROM USERS WHERE id=1;
+-- DELETE FROM USERS;

@@ -1,52 +1,49 @@
-<?php
+<?php 
 
-
-include '.php';
-include '.php';
-include '.php';
 include 'connectDB.php';
 include 'DBCommand.php';
 
-
-$connection = new DBConnection("172.17.0.3","PP_DDBB","sa",'02122004Aa'); /*contraseña y algun dato posible cambio*/
+$connection = new DBConnection("172.17.0.3","PP_DDBB","sa",' Informatica55_'); /*contraseña y algun dato posible cambio*/
 $action = isset($_GET['action']) ? $_GET['action'] :'';
 
-
-$blockchain= new Blockchain($connection);
-
-
 if (empty($action)){
-   echo "Accion no especificada.";
-}else{
-   switch ($action){
-       case"register":
-        $from = isset($_GET['from']) ? $_GET['from'] :'';
-        $to = isset($_GET['to']) ? $_GET['to'] :'';
-        $amount = isset($_GET['amount']) ? $_GET['amount'] :'';
-        if (empty($from)||empty($to)|| empty($amount)){
-            echo "Faltan datos";
-        } else {
-            $blockchain->addBlock(new Block([new Transaction($from, $to, $amount)]));
-            //$blockchain->printBlockchain();
-            echo 'producto añadido';
-        }
-           break;
-       case "login":
-            $blockchain->printXML();
-               break; 
-       case "logout":
-            echo "<br>";
-            echo "<br> Validating--------------- <br>";
-            if ($blockchain->isValid()) {
-                echo "Blockchain is valid.\n <br>";
+    echo "Accion no especificada.";
+} else {
+    switch ($action){
+        case "register": 
+            $username = isset($_GET['username']) ? $_GET['username'] :'';
+            $name = isset($_GET['name']) ? $_GET['name'] :'';
+            $lastname = isset($_GET['lastname']) ? $_GET['lastname'] :'';
+            $password = isset($_GET['password']) ? $_GET['password'] :'';
+            $email = isset($_GET['email']) ? $_GET['email'] : '';
+
+            if (empty($username) || empty($name) || empty($lastname) || empty($password) || empty($email)){
+                echo "Todos los campos son obligatorios.";
             } else {
-                echo "Blockchain is not valid!\n <br>" ;
+                // Obtener el objeto PDO de la conexión
+                $pdoObject = $connection->getPDOObject();
+
+                // Crear un objeto DBCommand
+                $dbCommand = new DBCommand($pdoObject);
+
+                // Preparar el procedimiento almacenado
+                $dbCommand->prepare("sp_user_register", array($username, $name, $lastname, $password, $email));
+
+                // Ejecutar el procedimiento almacenado
+                $result = $dbCommand->execute();
+
+                if ($result == 200) {
+                    echo "Usuario registrado exitosamente.";
+                } elseif ($result == 409) {
+                    echo "El nombre de usuario ya está en uso.";
+                } elseif ($result == 450) {
+                    echo "La contraseña no cumple con los requisitos de seguridad.";
+                } else {
+                    echo "Error desconocido al registrar usuario.";
+                }
             }
-        
-               break;
-   }
+            break;
+    
+    }
 }
-
-
 ?>
-
