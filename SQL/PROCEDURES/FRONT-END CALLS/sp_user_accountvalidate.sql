@@ -53,9 +53,3 @@ BEGIN
     PRINT 'El usuario ' + @USERNAME + ' ha sido activado correctamente.';
 END;
 GO
-
-EXEC sp_user_accountvalidate
-    @USERNAME = 'BlowFlow',
-    @REGISTER_CODE = 10133;
-
-SELECT * FROM USERS;

@@ -3,7 +3,7 @@
 include 'connectDB.php';
 include 'DBCommand.php';
 
-$connection = new DBConnection("172.17.0.3","PP_DDBB","sa",' Informatica55_'); /*contraseña y algun dato posible cambio*/
+$connection = new DBConnection('Server=172.17.0.3', 1433 , 'PP_DDBB', 'sa', ' Informatica55_'); /*contraseña y algun dato posible cambio*/
 $action = isset($_GET['action']) ? $_GET['action'] :'';
 
 if (empty($action)){

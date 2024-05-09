@@ -1,6 +1,7 @@
 USE PP_DDBB;
 GO
 
+-- sp_user_login
 CREATE OR ALTER PROCEDURE sp_user_login
     @USERNAME NVARCHAR(25),
     @PASSWORD NVARCHAR(50)
@@ -41,11 +42,11 @@ BEGIN
                 SET @CONNECTION_ID = dbo.fn_generate_ssid();
 
                 INSERT INTO USER_CONNECTIONS
-                    (CONNECTION_ID, USER_ID, DATE_CONNECTED)
+                    (CONNECTION_ID, USER_ID, USERNAME, DATE_CONNECTED)
                 VALUES
                     (@CONNECTION_ID, (SELECT ID
                         FROM USERS
-                        WHERE USERNAME = @USERNAME), GETDATE());
+                        WHERE USERNAME = @USERNAME),@USERNAME, GETDATE());
 
                 IF @@ROWCOUNT = 1
                 BEGIN
@@ -60,7 +61,3 @@ BEGIN
     RETURN @ret;
 END
 GO
-
-EXEC sp_user_login
-    @USERNAME = 'BlowFlow',
-    @PASSWORD = 'Contraseña#123'

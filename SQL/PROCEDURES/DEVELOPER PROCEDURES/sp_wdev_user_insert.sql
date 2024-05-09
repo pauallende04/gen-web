@@ -23,14 +23,3 @@ DECLARE @REGISTER_CODE INT;
     RETURN @REGISTER_CODE;
 
 END;
-
--- EXEC sp_wdev_user_insert 
---     @USERNAME = 'TOR',
---     @NAME = 'Pau',
---     @LASTNAME = 'Allende',
---     @PASSWORD = 'contraseña',
---     @EMAIL = 'correoTOR@example.com'
-
-go
-
-SELECT * FROM USERS;
