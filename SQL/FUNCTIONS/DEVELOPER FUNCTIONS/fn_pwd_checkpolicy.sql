@@ -2,33 +2,34 @@ USE PP_DDBB;
 GO
 
 -- Función para verificar la política de contraseñas
-CREATE OR ALTER FUNCTION dbo.fn_pwd_checkpolicy
-(
-    @PASSWORD NVARCHAR(50)
-)
-RETURNS BIT
+CREATE OR ALTER FUNCTION fn_pwd_checkpolicy(@PASSWORD NVARCHAR(100))
+RETURNS INT
 AS
 BEGIN
-    DECLARE @IsValid BIT;
+    DECLARE @errorPass BIT;
+    SET @errorPass = 1;
 
-    -- Verificar longitud mínima
-    IF LEN(@PASSWORD) < 10
-        SET @IsValid = 0;
-    -- Verificar al menos una letra mayúscula
-    ELSE IF @PASSWORD COLLATE Latin1_General_BIN <> @PASSWORD AND @PASSWORD COLLATE Latin1_General_CS_AS = @PASSWORD
-        SET @IsValid = 0;
-    -- Verificar al menos una letra minúscula
-    ELSE IF @PASSWORD COLLATE Latin1_General_BIN = @PASSWORD AND @PASSWORD COLLATE Latin1_General_CS_AS <> @PASSWORD
-        SET @IsValid = 0;
-    -- Verificar al menos un número
-    ELSE IF @PASSWORD NOT LIKE '%[0-9]%'
-        SET @IsValid = 0;
-    -- Verificar al menos un carácter especial
-    ELSE IF @PASSWORD NOT LIKE '%[!@#$%^&*()-_=+{};:,<.>]/\?%' ESCAPE '\'
-        SET @IsValid = 0;
-    ELSE
-        SET @IsValid = 1;
+    IF len(@PASSWORD) < 10
+    BEGIN
+        SET @errorPass = 0;
+    END
 
-    RETURN @IsValid;
-END;
-GO
+    -- Verifica la existencia de un número en la contraseña
+    ELSE IF PATINDEX('%[0-9]%', @PASSWORD) = 0
+    BEGIN
+        SET @errorPass = 0;
+    END
+
+    -- Verifica la existencia de una letra en la contraseña
+    ELSE IF PATINDEX('%[a-zA-Z]%', @PASSWORD) = 0
+    BEGIN
+        SET @errorPass = 0;
+    END
+    -- Verifica la existencia de un carácter especial en la contraseña
+    ELSE IF PATINDEX('%[^a-zA-Z0-9]%', @PASSWORD) = 0
+    BEGIN
+        SET @errorPass = 0;
+    END
+
+    RETURN @errorPass;
+END

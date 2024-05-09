@@ -19,16 +19,16 @@ DECLARE @ret INT;
         RETURN;
     END
 
-    --Mail
-    IF dbo.fn_mail_exists(@EMAIL) = 1
-    BEGIN
-        SET @ret = 409;
-        RAISERROR('El email ya está en uso.', 16, 1);
-        RETURN;
-    END
+    -- -- Mail
+    -- IF dbo.fn_mail_exists(@EMAIL) = 1
+    -- BEGIN
+    --     SET @ret = 409;
+    --     RAISERROR('El email ya está en uso.', 16, 1);
+    --     RETURN;
+    -- END
 
-     --Contraseña
-    IF dbo.fn_pwd_checkpolicy(@PASSWORD) = -1
+    --Contraseña
+    IF dbo.fn_pwd_checkpolicy(@PASSWORD) = 0
     BEGIN
         SET @ret = 450;
         RAISERROR('La contraseña debe contener mas de 10 carácteres, donde deberás usar una mayúscula, una minúscula, un número y un carácter especial', 16, 1);
@@ -56,8 +56,8 @@ EXEC sp_user_register
     @USERNAME = 'BlowFlow',
     @NAME = 'Pau',
     @LASTNAME = 'Allende',
-    @PASSWORD = 'Contraseña2004',
-    @EMAIL = 'BlowFlow@example.com'
+    @PASSWORD = 'Contraseña#123',
+    @EMAIL = 'blowflow@example.com'
 
 SELECT * FROM USERS;
 

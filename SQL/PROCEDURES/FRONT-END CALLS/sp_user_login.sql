@@ -52,3 +52,7 @@ BEGIN
     RETURN @ret;
 END
 GO
+
+EXEC sp_user_login
+    @USERNAME = 'BlowFlow',
+    @PASSWORD = 'Contraseña#123'
