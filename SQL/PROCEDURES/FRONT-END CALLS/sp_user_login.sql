@@ -5,6 +5,7 @@ GO
 CREATE OR ALTER PROCEDURE sp_user_login
     @USERNAME NVARCHAR(25),
     @PASSWORD NVARCHAR(50)
+
 AS
 BEGIN
     DECLARE @ret INT;
@@ -19,11 +20,10 @@ BEGIN
     IF @LOGIN_STATUS = 1
     BEGIN
         SET @ret = 500; -- Código de error personalizado
-        EXEC sp_user_logout 
-        RAISERROR('El usuario se esta desconectando.', 10, 1);
-        RETURN;
+        EXEC sp_user_logout @USERNAME;
+        RAISERROR('El usuario se esta desconectando.', 10, 1);    
     END
-    ELSE
+    
     IF (dbo.fn_user_exists(@USERNAME) = 0)
     BEGIN
         SET @ret = 409;

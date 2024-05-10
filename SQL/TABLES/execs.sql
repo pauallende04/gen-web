@@ -32,6 +32,8 @@ EXEC sp_user_login
 SELECT * FROM USER_CONNECTIONS;
 EXEC sp_user_logout
     @USERNAME = 'pol888';
+    
+SELECT * FROM USERS;
 
 --
 SELECT * FROM USERS

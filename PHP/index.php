@@ -1,4 +1,5 @@
 <?php 
+session_start();
 
 include 'connectDB.php';
 include 'DBCommand.php';
@@ -47,25 +48,60 @@ if (empty($action)){
             }
             break;
         
-        case "login":
-            $username = isset($_GET['username']) ? $_GET['username'] :'';
-            $password = isset($_GET['password']) ? $_GET['password'] :'';
-
-            if(empty($username) || empty($password)) {
-                echo "Nombre de usuario o contraseña vacía";
-            }else{
-                $pdoObject = $connection->getPDOObject();
-
-                $dbCommand = new DBCommand($pdoObject);
-
-                $dbCommand->prepare("sp_user_login", array($username,$password));
-
-                $result = $dbCommand->execute();
-            }
-            break;
-            
-        case "logout":
-            break;
+            case "login":
+                $username = isset($_GET['username']) ? $_GET['username'] : '';
+                $password = isset($_GET['password']) ? $_GET['password'] : '';
+    
+                if (empty($username) || empty($password)) {
+                    echo "Nombre de usuario o contraseña vacíos.";
+                } else {
+                    $pdoObject = $connection->getPDOObject();
+                    $dbCommand = new DBCommand($pdoObject);
+    
+                    $dbCommand->prepare("sp_user_login", array($username, $password));
+                    $result = $dbCommand->execute();
+    
+                    if ($result == 0) { // Éxito
+                        $_SESSION['username'] = $username; // Almacena el nombre de usuario en la sesión
+                        echo "Inicio de sesión exitoso.";
+                    } elseif ($result == 409) {
+                        echo "Nombre de usuario no existe.";
+                    } elseif ($result == 423) {
+                        echo "Contraseña incorrecta o cuenta inactiva/bloqueada.";
+                    } elseif ($result == 500) {
+                        echo "Usuario ya está conectado. Intentando desconectarlo.";
+                    } else {
+                        echo "Error desconocido durante el inicio de sesión.";
+                    }
+                }
+                break;
+    
+            case "logout":
+                if (isset($_SESSION['username'])) { // Verifica si hay una sesión activa
+                    $username = $_SESSION['username']; // Obtén el nombre de usuario desde la sesión
+    
+                    $pdoObject = $connection->getPDOObject();
+                    $dbCommand = new DBCommand($pdoObject);
+    
+                    // Ejecuta el procedimiento almacenado para cerrar la conexión
+                    $dbCommand->prepare("sp_user_logout", array($username));
+                    $result = $dbCommand->execute();
+    
+                    // Destruir la sesión para cerrar la sesión del usuario
+                    session_unset(); // Limpiar todas las variables de sesión
+                    session_destroy(); // Destruir la sesión
+    
+                    if ($result == 0) {
+                        echo "Sesión cerrada con éxito.";
+                    } elseif ($result == 404) {
+                        echo "Usuario no estaba conectado o conexión no encontrada.";
+                    } else {
+                        echo "Error desconocido durante el cierre de sesión.";
+                    }
+                } else {
+                    echo "No se encontró una sesión activa para cerrar.";
+                }
+                break;
 
         case "changepass":
             $username = isset($_GET['username']) ? $_GET['username'] :'';
