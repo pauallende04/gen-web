@@ -10,26 +10,28 @@ EXEC sp_wdev_user_insert
     @EMAIL = 'correoTOR@example.com'
 --
 EXEC sp_user_register 
-    @USERNAME = 'BlowFlow',
-    @NAME = 'Pau',
-    @LASTNAME = 'Allende',
+    @USERNAME = 'pol888',
+    @NAME = 'Pol',
+    @LASTNAME = 'Rabascall',
     @PASSWORD = 'Contraseña#123',
-    @EMAIL = 'blowflow@example.com'
+    @EMAIL = 'pol888@example.com'
+
+SELECT * FROM USERS;
 
 --
 EXEC sp_user_accountvalidate
-    @USERNAME = 'BlowFlow',
-    @REGISTER_CODE = 99204;
+    @USERNAME = 'pol888',
+    @REGISTER_CODE = 22900;
 
 --
 EXEC sp_user_login
-    @USERNAME = 'BlowFlow',
+    @USERNAME = 'pol888',
     @PASSWORD = 'Contraseña#123'
 
 --
 SELECT * FROM USER_CONNECTIONS;
 EXEC sp_user_logout
-    @CONNECTION_ID = '5b74178a-89a2-4be3-8256-810502d08c79';
+    @USERNAME = 'pol888';
 
 --
 SELECT * FROM USERS

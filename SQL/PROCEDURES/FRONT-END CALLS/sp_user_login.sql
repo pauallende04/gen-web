@@ -8,9 +8,22 @@ CREATE OR ALTER PROCEDURE sp_user_login
 AS
 BEGIN
     DECLARE @ret INT;
+    DECLARE @LOGIN_STATUS BIT;
 
     SET @ret = -1;
 
+    SELECT @LOGIN_STATUS = LOGIN_STATUS
+    FROM USERS
+    WHERE USERNAME = @USERNAME;
+
+    IF @LOGIN_STATUS = 1
+    BEGIN
+        SET @ret = 500; -- Código de error personalizado
+        EXEC sp_user_logout 
+        RAISERROR('El usuario se esta desconectando.', 10, 1);
+        RETURN;
+    END
+    ELSE
     IF (dbo.fn_user_exists(@USERNAME) = 0)
     BEGIN
         SET @ret = 409;
@@ -47,6 +60,8 @@ BEGIN
                     (@CONNECTION_ID, (SELECT ID
                         FROM USERS
                         WHERE USERNAME = @USERNAME),@USERNAME, GETDATE());
+
+                UPDATE USERS SET LOGIN_STATUS = 1 WHERE USERNAME = @USERNAME;
 
                 IF @@ROWCOUNT = 1
                 BEGIN

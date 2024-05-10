@@ -47,7 +47,34 @@ if (empty($action)){
             }
             break;
         
-        case "":
+        case "login":
+            $username = isset($_GET['username']) ? $_GET['username'] :'';
+            $password = isset($_GET['password']) ? $_GET['password'] :'';
+
+            if(empty($username) || empty($password)) {
+                echo "Nombre de usuario o contraseña vacía";
+            }else{
+                $pdoObject = $connection->getPDOObject();
+
+                $dbCommand = new DBCommand($pdoObject);
+
+                $dbCommand->prepare("sp_user_login", array($username,$password));
+
+                $result = $dbCommand->execute();
+            }
+            break;
+            
+        case "logout":
+            break;
+
+        case "changepass":
+            $username = isset($_GET['username']) ? $_GET['username'] :'';
+            $password = isset($_GET['password']) ? $_GET['password'] :'';
+            $newpassword = isset($_GET['newpassword']) ? $_GET['newpassword'] :'';
+
+            break;
     }
 }
+//http://localhost:40080/gen-web/gen-web/PHP/index.php?action=register&username=sample_user&name=John&lastname=Doe&password=Contrase%C3%B1a_123&email=johndoe@example.com
+//http://localhost:40080/gen-web/gen-web/PHP/index.php?action=login&username=pol888&password=Contrase%C3%B1a#123
 ?>

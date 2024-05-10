@@ -3,19 +3,18 @@ GO
 
 -- sp_user_logout
 CREATE OR ALTER PROCEDURE sp_user_logout
-    @CONNECTION_ID UNIQUEIDENTIFIER
+    @USERNAME NVARCHAR(25)
 AS
 BEGIN
     DECLARE @ret INT;
     SET @ret = -1;
 
     DECLARE @USER_ID INT;
-    DECLARE @USERNAME NVARCHAR(30);
     DECLARE @DATE_CONNECTED DATETIME;
 
-    -- Comprueba si el connection_id existe en USER_CONNECTIONS
+    -- Comprueba si el usuario está conectado
     IF EXISTS (
-        SELECT 1 FROM USER_CONNECTIONS WHERE CONNECTION_ID = @CONNECTION_ID
+        SELECT 1 FROM USER_CONNECTIONS WHERE USERNAME = @USERNAME
     )
     BEGIN
         -- Obtén la información de la conexión
@@ -25,7 +24,7 @@ BEGIN
             DATE_CONNECTED 
         INTO #TempConnectionInfo
         FROM USER_CONNECTIONS 
-        WHERE CONNECTION_ID = @CONNECTION_ID;
+        WHERE USERNAME = @USERNAME;
 
         -- Insertar en USER_CONNECTIONS_HISTORY antes de eliminar
         INSERT INTO USER_CONNECTIONS_HISTORY(
@@ -42,7 +41,7 @@ BEGIN
         FROM #TempConnectionInfo;
 
         -- Eliminar de USER_CONNECTIONS
-        DELETE FROM USER_CONNECTIONS WHERE CONNECTION_ID = @CONNECTION_ID;
+        DELETE FROM USER_CONNECTIONS WHERE USERNAME = @USERNAME;
 
         IF @@ROWCOUNT = 1
         BEGIN
@@ -52,6 +51,10 @@ BEGIN
 
         -- Limpiar la tabla temporal
         DROP TABLE #TempConnectionInfo;
+
+        --establece valor conexion a 0
+        UPDATE USERS SET LOGIN_STATUS = 0 WHERE USERNAME = @USERNAME;
+
     END
     ELSE
     BEGIN
