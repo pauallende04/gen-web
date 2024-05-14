@@ -1,116 +1,146 @@
-<?php 
+<?php
 session_start();
 
-include 'connectDB.php';
-include 'DBCommand.php';
+require_once 'connectDB.php';
+require_once 'DBCommand.php';
 
-$connection = new DBConnection('172.17.0.2,1433', 'PP_DDBB', 'sa', ' Informatica55_'); /*contraseña y algun dato posible cambio*/
-$action = isset($_GET['action']) ? $_GET['action'] :'';
+$connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', ' Informatica55_');
+
+$action = isset($_GET['action']) ? $_GET['action'] : '';
 
 if (empty($action)){
     echo "Accion no especificada.";
 } else {
     switch ($action){
         case "register": 
-            $username = isset($_GET['username']) ? $_GET['username'] :'';
-            $name = isset($_GET['name']) ? $_GET['name'] :'';
-            $lastname = isset($_GET['lastname']) ? $_GET['lastname'] :'';
-            $password = isset($_GET['password']) ? $_GET['password'] :'';
+            $username = isset($_GET['username']) ? $_GET['username'] : '';
+            $name = isset($_GET['name']) ? $_GET['name'] : '';
+            $lastname = isset($_GET['lastname']) ? $_GET['lastname'] : '';
+            $password = isset($_GET['password']) ? $_GET['password'] : '';
             $email = isset($_GET['email']) ? $_GET['email'] : '';
             
             if (empty($username) || empty($name) || empty($lastname) || empty($password) || empty($email)){
                 echo "Todos los campos son obligatorios.";
             } else {
-                // Obtener el objeto PDO de la conexión
-                $pdoObject = $connection->getPDOObject();
+                try {
+                    $pdoObject = $connection->getPDOObject();
+                    $dbCommand = new DBCommand($pdoObject);
+                    $result = $dbCommand->execute('sp_user_register', array($username, $name, $lastname, $password, $email));
 
-                // Crear un objeto DBCommand
-                $dbCommand = new DBCommand($pdoObject);
+                    // Establecer el encabezado para XML
+                    header('Content-Type: text/xml');
 
-                // Preparar el procedimiento almacenado
-                $dbCommand->prepare("sp_user_register", array($username, $name, $lastname, $password, $email));
-
-                // Ejecutar el procedimiento almacenado
-                $result = $dbCommand->execute();
-
-                
-
-                if ($result == 200) {
-                    echo "Usuario registrado exitosamente.";
-                } elseif ($result == 409) {
-                    echo "El nombre de usuario ya está en uso.";
-                } elseif ($result == 450) {
-                    echo "La contraseña no cumple con los requisitos de seguridad.";
-                } else {
+                    // Mostrar la respuesta XML
                     echo $result;
+                    
+                } catch (PDOException $e) {
+                    echo 'Error: ' . $e->getMessage();
                 }
-                // echo "Error desconocido al registrar usuario." ;
             }
             break;
-        
-            case "login":
+
+            case "login": 
                 $username = isset($_GET['username']) ? $_GET['username'] : '';
                 $password = isset($_GET['password']) ? $_GET['password'] : '';
-    
-                if (empty($username) || empty($password)) {
-                    echo "Nombre de usuario o contraseña vacíos.";
+
+                if (empty($username) || empty($password)){
+                    echo "Todos los campos son obligatorios.";
                 } else {
-                    $pdoObject = $connection->getPDOObject();
-                    $dbCommand = new DBCommand($pdoObject);
+                    try {
+                        $pdoObject = $connection->getPDOObject();
+                        $dbCommand = new DBCommand($pdoObject);
+                        $result = $dbCommand->execute('sp_user_login', array($username, $password));
+
+                        $_SESSION['username'] = $username;
     
-                    $dbCommand->prepare("sp_user_login", array($username, $password));
-                    $result = $dbCommand->execute();
+                        // Establecer el encabezado para XML
+                        header('Content-Type: text/xml');
     
-                    if ($result == 0) { // Éxito
-                        $_SESSION['username'] = $username; // Almacena el nombre de usuario en la sesión
-                        echo "Inicio de sesión exitoso.";
-                    } elseif ($result == 409) {
-                        echo "Nombre de usuario no existe.";
-                    } elseif ($result == 423) {
-                        echo "Contraseña incorrecta o cuenta inactiva/bloqueada.";
-                    } elseif ($result == 500) {
-                        echo "Usuario ya está conectado. Intentando desconectarlo.";
-                    } else {
-                        echo "Error desconocido durante el inicio de sesión.";
+                        // Mostrar la respuesta XML
+                        echo $result;
+                        
+                    } catch (PDOException $e) {
+                        echo 'Error: ' . $e->getMessage();
                     }
                 }
                 break;
+
+            case "logout": 
+                try {
+                    if (isset($_SESSION['username'])) { // Verifica si hay una sesión activa
+                        $username = $_SESSION['username'];
+                        $pdoObject = $connection->getPDOObject();
+                        $dbCommand = new DBCommand($pdoObject);
+                        $result = $dbCommand->execute('sp_user_logout', array($username));
     
-            case "logout":
-                if (isset($_SESSION['username'])) { // Verifica si hay una sesión activa
-                    $username = $_SESSION['username']; // Obtén el nombre de usuario desde la sesión
+                        // Establecer el encabezado para XML
+                        header('Content-Type: text/xml');
     
-                    $pdoObject = $connection->getPDOObject();
-                    $dbCommand = new DBCommand($pdoObject);
-    
-                    // Ejecuta el procedimiento almacenado para cerrar la conexión
-                    $dbCommand->prepare("sp_user_logout", array($username));
-                    $result = $dbCommand->execute();
-    
-                    // Destruir la sesión para cerrar la sesión del usuario
-                    session_unset(); // Limpiar todas las variables de sesión
-                    session_destroy(); // Destruir la sesión
-    
-                    if ($result == 0) {
-                        echo "Sesión cerrada con éxito.";
-                    } elseif ($result == 404) {
-                        echo "Usuario no estaba conectado o conexión no encontrada.";
-                    } else {
-                        echo "Error desconocido durante el cierre de sesión.";
+                        // Mostrar la respuesta XML
+                        echo $result;
                     }
-                } else {
-                    echo "No se encontró una sesión activa para cerrar.";
+                    
+                } catch (PDOException $e) {
+                    echo 'Error: ' . $e->getMessage();
                 }
                 break;
 
-        case "changepass":
-            $username = isset($_GET['username']) ? $_GET['username'] :'';
-            $password = isset($_GET['password']) ? $_GET['password'] :'';
-            $newpassword = isset($_GET['newpassword']) ? $_GET['newpassword'] :'';
+            case "changepass": 
+                $username = isset($_GET['username']) ? $_GET['username'] : '';
+                $password = isset($_GET['password']) ? $_GET['password'] : '';
+                $newpassword = isset($_GET['newpassword']) ? $_GET['newpassword'] : '';
 
-            break;
+                if (empty($username) || empty($password)){
+                    echo "Todos los campos son obligatorios.";
+                } else {
+                    try {
+                        $pdoObject = $connection->getPDOObject();
+                        $dbCommand = new DBCommand($pdoObject);
+                        $result = $dbCommand->execute('sp_user_change_password', array($username, $password, $newpassword));
+    
+                        // Establecer el encabezado para XML
+                        header('Content-Type: text/xml');
+    
+                        // Mostrar la respuesta XML
+                        echo $result;
+                        
+                    } catch (PDOException $e) {
+                        echo 'Error: ' . $e->getMessage();
+                    }
+                }
+                break;
+
+            case "viewcon": 
+                try {
+                    $pdoObject = $connection->getPDOObject();
+                    $dbCommand = new DBCommand($pdoObject);
+                    $result = $dbCommand->execute('sp_list_connections');
+
+                    // Establecer el encabezado para XML
+                    header('Content-Type: text/xml');
+
+                    // Mostrar la respuesta XML
+                    echo $result;
+                    
+                } catch (PDOException $e) {
+                    echo 'Error: ' . $e->getMessage();
+                }
+                break;
+        // Resto de los casos
     }
 }
-//http://localhost:40080/gen-web/gen-web/PHP/index.php?action=register&username=sample_user&name=John&lastname=Doe&password=Contrase%C3%B1a_123&email=johndoe@example.com
-//http://localhost:40080/gen-web/gen-web/PHP/index.php?action=login&username=pol888&password=Contrase%C3%B1a#123
+
+// Register:
+//localhost:40080/gen-web/gen-web/PHP/index.php?action=register&username=pauallende04&name=Pau&lastname=Allende&password=Test12345!!&email=pau@example.com
+// Login: 
+//localhost:40080/gen-web/gen-web/PHP/index.php?action=login&username=pauallende04&password=Test12345!!
+// Logout: 
+//localhost:40080/gen-web/gen-web/PHP/index.php?action=logout
+// Change Password: 
+//localhost:40080/gen-web/gen-web/PHP/index.php?action=changepass&username=pauallende04&password=Test12345!!&newpassword=NewPassword12345!!
+// View Active Connections: 
+//localhost:40080/gen-web/gen-web/PHP/index.php?action=viewcon
+
+
+
 ?>

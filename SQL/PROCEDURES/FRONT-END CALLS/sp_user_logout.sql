@@ -6,6 +6,8 @@ CREATE OR ALTER PROCEDURE sp_user_logout
     @USERNAME NVARCHAR(25)
 AS
 BEGIN
+    SET NOCOUNT ON;
+    
     DECLARE @ret INT;
     SET @ret = -1;
 
@@ -45,24 +47,27 @@ BEGIN
 
         IF @@ROWCOUNT = 1
         BEGIN
+            -- Limpiar la tabla temporal
+            DROP TABLE #TempConnectionInfo;
+
+            --establece valor conexion a 0
+            UPDATE USERS SET LOGIN_STATUS = 0 WHERE USERNAME = @USERNAME;
+
             SET @ret = 0;
-            PRINT 'Usuario desconectado y registrado en el historial correctamente.';
+            GOTO ExitProc;
         END
-
-        -- Limpiar la tabla temporal
-        DROP TABLE #TempConnectionInfo;
-
-        --establece valor conexion a 0
-        UPDATE USERS SET LOGIN_STATUS = 0 WHERE USERNAME = @USERNAME;
 
     END
     ELSE
     BEGIN
-        SET @ret = 404;
-        RAISERROR('La conexión especificada no existe.', 16, 1);
+        SET @ret = 405;
+        GOTO ExitProc;
+        -- RAISERROR('La conexión especificada no existe.', 16, 1);
     END
 
-    RETURN @ret;
+    ExitProc:
+    DECLARE @ResponseXML XML;
+    EXEC sp_xml_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+    SELECT @ResponseXML;
 END
 GO
-

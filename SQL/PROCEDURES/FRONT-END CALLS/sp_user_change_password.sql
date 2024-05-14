@@ -2,6 +2,7 @@ USE PP_DDBB;
 GO
 
 -- sp_user_change_password
+
 CREATE OR ALTER PROCEDURE sp_user_change_password
     @USERNAME NVARCHAR(50), 
     @CURRENT_PASSWORD NVARCHAR(50), 
@@ -9,29 +10,51 @@ CREATE OR ALTER PROCEDURE sp_user_change_password
 
 AS
 BEGIN
+    SET NOCOUNT ON;
+    
     DECLARE @ret INT;
-    DECLARE @USER_ID INT;
-    DECLARE @OLD_PASSWORD NVARCHAR(50);
-
     SET @ret = -1;
+
+    DECLARE @USER_ID INT;
 
     -- Verifica que la contraseña actual sea válida
     IF (dbo.fn_pwd_isvalid(@CURRENT_PASSWORD, @USERNAME) = 0)
     BEGIN
-        SET @ret = 423;
-        RAISERROR('La contraseña es incorrecta.', 16, 1);
-        RETURN;
+        SET @ret = 502;
+        GOTO ExitProc;
     END
-
-    -- SET @OLD_PASSWORD= @CURRENT_PASSWORD;
 
     -- Verifica que la nueva contraseña cumpla con la política
     IF dbo.fn_pwd_checkpolicy(@NEW_PASSWORD) = 0
     BEGIN
-        SET @ret = 450;
-        RAISERROR('La contraseña debe contener más de 10 caracteres, incluyendo al menos una mayúscula, una minúscula, un número y un carácter especial.', 16, 1);
-        RETURN;
+        SET @ret = 503;
+        GOTO ExitProc;
     END
+
+    -- -- Verificar si la nueva contraseña es igual a alguna de las tres últimas contraseñas
+    -- IF dbo.fn_compare_soundex(@NEW_PASSWORD, @USER_ID) = 1
+    -- BEGIN
+    --     SET @XMLFlag = (
+    --         SELECT 402 AS 'StatusCode',
+    --             'La nueva contraseña no puede ser igual a una de las tres últimas contraseñas.' AS 'Message'
+    --         FOR XML PATH('Error'), ROOT('Errors'), TYPE
+    --     );
+    --     SELECT @XMLFlag;
+    --     RETURN;
+    -- END
+
+    -- -- Verificar si la nueva contraseña es igual a la última contraseña
+    -- IF dbo.fn_compare_passwords(@NEW_PASSWORD, @USER_ID) = 1
+    -- BEGIN
+    --     SET @XMLFlag = (
+    --         SELECT 402 AS 'StatusCode',
+    --             'La nueva contraseña no puede ser igual a la última contraseña.' AS 'Message'
+    --         FOR XML PATH('Error'), ROOT('Errors'), TYPE
+    --     );
+    --     SELECT @XMLFlag;
+    --     RETURN;
+    -- END
+
 
     -- Obtener la información del usuario
     SELECT 
@@ -57,10 +80,13 @@ BEGIN
     UPDATE USERS 
     SET PASSWORD = @NEW_PASSWORD 
     WHERE USERNAME = @USERNAME;
+    
+    SET @ret = 200;
 
-    SET @ret = 0;
-    PRINT 'Contraseña actualizada y registrada en el historial.';
+    ExitProc:
+    DECLARE @ResponseXML XML;
+    EXEC sp_xml_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+    SELECT @ResponseXML;
 
-    RETURN @ret;
 END
 GO

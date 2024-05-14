@@ -13,5 +13,3 @@ BEGIN
     RETURN @Exists;
 END;
 GO
-
-SELECT dbo.fn_user_exists('BlowFlow') AS user_exists;

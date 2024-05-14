@@ -4,26 +4,29 @@ GO
 CREATE OR ALTER PROCEDURE sp_list_connections
 AS
 BEGIN
-    DECLARE @ret INT;
-    SET @ret = -1;
+    SET NOCOUNT ON;
+
+    DECLARE @XMLFlag XML;
 
     IF EXISTS (
         SELECT 1 FROM USER_CONNECTIONS -- Verifica la tabla correcta
     )
     BEGIN
-        -- Devolver el historial de conexiones activas
-        SELECT * FROM USER_CONNECTIONS;        
-        SET @ret = 0;
+        SET @XMLFlag = (
+            SELECT * FROM USER_CONNECTIONS
+            FOR XML PATH('Connection'), ROOT('Connections'), TYPE
+        );
     END
     ELSE
     BEGIN
-        -- No hay conexiones activas
-        RAISERROR('No se encontraron conexiones activas.', 16, 1);
+        UPDATE USERS SET LOGIN_STATUS = 0;
+        SET @XMLFlag = (
+            SELECT 500 AS 'StatusCode',
+                   'No se encontraron conexiones activas.' AS 'Message'
+            FOR XML PATH('Error'), ROOT('Errors'), TYPE
+        );
     END
 
-    RETURN @ret;
+    SELECT @XMLFlag;
 END;
 GO
-
-
-EXEC sp_list_connections;

@@ -8,9 +8,11 @@ CREATE OR ALTER PROCEDURE sp_user_login
 
 AS
 BEGIN
-    DECLARE @ret INT;
-    DECLARE @LOGIN_STATUS BIT;
+    SET NOCOUNT ON;
 
+    DECLARE @XML_RESPONSE XML;
+    DECLARE @LOGIN_STATUS BIT;
+    DECLARE @ret INT;
     SET @ret = -1;
 
     SELECT @LOGIN_STATUS = LOGIN_STATUS
@@ -19,35 +21,29 @@ BEGIN
 
     IF @LOGIN_STATUS = 1
     BEGIN
-        SET @ret = 500; -- Código de error personalizado
         EXEC sp_user_logout @USERNAME;
-        RAISERROR('El usuario se esta desconectando.', 10, 1);    
+        SET @ret = 500;
+        GOTO ExitProc;
     END
     
     IF (dbo.fn_user_exists(@USERNAME) = 0)
     BEGIN
-        SET @ret = 409;
-        -- Usuario no encontrado
-        RAISERROR('El nombre de usuario no existe.', 16, 1);
-        RETURN;
+        SET @ret = 501;
+        GOTO ExitProc;
     END
     ELSE
     BEGIN
         IF (dbo.fn_user_state(@USERNAME) = 0)
         BEGIN
             SET @ret = 423;
-            -- Cuenta inactiva o bloqueada
-            RAISERROR('La cuenta del usuario está inactiva o bloqueada.', 16, 1);
-            RETURN;
+            GOTO ExitProc;
         END
         ELSE
         BEGIN
             IF (dbo.fn_pwd_isvalid(@PASSWORD, @USERNAME) = 0)
             BEGIN
-                SET @ret = 423;
-                -- Contraseña incorrecta
-                RAISERROR('La contraseña es incorrecta.', 16, 1);
-                RETURN;
+                SET @ret = 502;
+                GOTO ExitProc;
             END
             ELSE
             BEGIN
@@ -65,14 +61,17 @@ BEGIN
 
                 IF @@ROWCOUNT = 1
                 BEGIN
-                    SET @ret = 0;
-                    -- Éxito
-                    PRINT 'Usuario loggeado correctamente. El connection_id es: ' + CONVERT(VARCHAR(50), @CONNECTION_ID);
+                    SET @ret = 200;
+                    GOTO ExitProc;
                 END
             END
         END
     END
 
-    RETURN @ret;
+    ExitProc:
+    DECLARE @ResponseXML XML;
+    EXEC sp_xml_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+    SELECT @ResponseXML;
+
 END
 GO
