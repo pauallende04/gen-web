@@ -6,16 +6,20 @@ CREATE OR ALTER PROCEDURE sp_user_accountvalidate
     @REGISTER_CODE INT
 AS
 BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @ret INT;
+    SET @ret = -1;
+
     DECLARE @UserID INT;
     DECLARE @UserStatus INT;
     DECLARE @UserRegisterCode INT;
 
     -- Verificar si el usuario existe
-    IF NOT EXISTS (SELECT 1 FROM USERS WHERE USERNAME = @USERNAME)
+    IF dbo.fn_user_exists(@USERNAME) = 0
     BEGIN
-        -- Usuario no encontrado
-        RAISERROR('El usuario especificado no existe.', 16, 1);
-        RETURN;
+        SET @ret = 501;
+        GOTO ExitProc;
     END
 
     -- Obtener el ID, estado y register code del usuario
@@ -25,31 +29,28 @@ BEGIN
     -- Verificar si el usuario ya está activo
     IF @UserStatus = 1
     BEGIN
-        -- La cuenta ya está activada
-        RAISERROR('La cuenta del usuario ya está activada.', 16, 1);
-        RETURN;
+        SET @ret = 701;
+        GOTO ExitProc;
     END
+    ELSE
+        -- Verificar si el código de registro coincide
+        IF @REGISTER_CODE <> @UserRegisterCode
+        BEGIN
+            SET @ret = 702;
+            GOTO ExitProc;
+        END
+        ELSE
+            -- Actualizar el estado del usuario a activo (1)
+            UPDATE USERS SET STATUS = 1 WHERE ID = @UserID;
 
-    -- Verificar si el código de registro coincide
-    IF @REGISTER_CODE <> @UserRegisterCode
-    BEGIN
-        -- Código de registro incorrecto
-        RAISERROR('El código de registro proporcionado no es válido.', 16, 1);
-        RETURN;
-    END
-
-    -- Actualizar el estado del usuario a activo (1)
-    UPDATE USERS SET STATUS = 1 WHERE ID = @UserID;
-
-    -- Verificar si se actualizó correctamente
-    IF @@ROWCOUNT = 0
-    BEGIN
-        -- No se actualizó ningún registro, probablemente debido a un problema de concurrencia
-        RAISERROR('No se pudo actualizar el estado del usuario.', 16, 1);
-        RETURN;
-    END
-
-    -- Éxito
-    PRINT 'El usuario ' + @USERNAME + ' ha sido activado correctamente.';
+            -- Verificar si se actualizó correctamente
+            IF @@ROWCOUNT = 0
+            BEGIN
+                SET @ret = 703;
+                GOTO ExitProc;
+            END
+            ELSE
+                SET @ret = 0;
+                GOTO ExitProc;
 END;
 GO

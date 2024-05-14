@@ -52,7 +52,7 @@ BEGIN
 
                     IF @@ROWCOUNT > 0
                     BEGIN
-                        SET @ret = 200;
+                        SET @ret = 0;
                         GOTO ExitProc;
                     END
                     ELSE
@@ -67,6 +67,6 @@ BEGIN
 
     ExitProc:
     DECLARE @ResponseXML XML;
-    EXEC sp_xml_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+    EXEC sp_xml_error_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
     SELECT @ResponseXML;
 END;

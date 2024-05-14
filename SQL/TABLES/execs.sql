@@ -14,7 +14,7 @@ SELECT * FROM USERS;
 --
 EXEC sp_user_accountvalidate
     @USERNAME = 'pauallende04',
-    @REGISTER_CODE = 89354;
+    @REGISTER_CODE = 17078;
 
 --
 EXEC sp_user_login

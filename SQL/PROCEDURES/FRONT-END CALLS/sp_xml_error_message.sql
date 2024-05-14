@@ -1,7 +1,7 @@
 USE PP_DDBB;
 GO
 
-CREATE OR ALTER PROCEDURE sp_xml_message
+CREATE OR ALTER PROCEDURE sp_xml_error_message
     @RETURN INT,
     @XmlResponse XML OUTPUT
 AS
@@ -11,7 +11,7 @@ BEGIN
 
     DECLARE @ERROR_MESSAGE NVARCHAR(200);
 
-    IF @ERROR_CODE = 200
+    IF @ERROR_CODE = 0
     BEGIN
         -- Cuando @ERROR_CODE no es 200, se recupera el mensaje de error correspondiente
         SELECT @ERROR_MESSAGE = ERROR_MESSAGE FROM USER_ERRORS WHERE ERROR_CODE = @ERROR_CODE;

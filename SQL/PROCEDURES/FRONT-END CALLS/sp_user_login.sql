@@ -55,13 +55,13 @@ BEGIN
                 VALUES
                     (@CONNECTION_ID, (SELECT ID
                         FROM USERS
-                        WHERE USERNAME = @USERNAME),@USERNAME, GETDATE());
+                        WHERE USERNAME = @USERNAME),@USERNAME, CONVERT(DATETIME, SWITCHOFFSET(SYSDATETIMEOFFSET(), '+02:00')));
 
                 UPDATE USERS SET LOGIN_STATUS = 1 WHERE USERNAME = @USERNAME;
 
                 IF @@ROWCOUNT = 1
                 BEGIN
-                    SET @ret = 200;
+                    SET @ret = 0;
                     GOTO ExitProc;
                 END
             END
@@ -70,7 +70,7 @@ BEGIN
 
     ExitProc:
     DECLARE @ResponseXML XML;
-    EXEC sp_xml_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+    EXEC sp_xml_error_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
     SELECT @ResponseXML;
 
 END

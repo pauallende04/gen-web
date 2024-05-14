@@ -39,7 +39,7 @@ BEGIN
             USER_ID, 
             USERNAME, 
             DATE_CONNECTED, 
-            GETDATE() -- fecha de desconexión
+            CONVERT(DATETIME, SWITCHOFFSET(SYSDATETIMEOFFSET(), '+02:00')) -- fecha de desconexión
         FROM #TempConnectionInfo;
 
         -- Eliminar de USER_CONNECTIONS
@@ -53,7 +53,7 @@ BEGIN
             --establece valor conexion a 0
             UPDATE USERS SET LOGIN_STATUS = 0 WHERE USERNAME = @USERNAME;
 
-            SET @ret = 0;
+            SET @ret = 100;
             GOTO ExitProc;
         END
 
@@ -67,7 +67,7 @@ BEGIN
 
     ExitProc:
     DECLARE @ResponseXML XML;
-    EXEC sp_xml_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+    EXEC sp_xml_error_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
     SELECT @ResponseXML;
 END
 GO

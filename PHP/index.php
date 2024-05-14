@@ -126,20 +126,82 @@ if (empty($action)){
                     echo 'Error: ' . $e->getMessage();
                 }
                 break;
+
+            case "viewconhist": 
+                try {
+                    $pdoObject = $connection->getPDOObject();
+                    $dbCommand = new DBCommand($pdoObject);
+                    $result = $dbCommand->execute('sp_list_historic_connections');
+
+                    // Establecer el encabezado para XML
+                    header('Content-Type: text/xml');
+
+                    // Mostrar la respuesta XML
+                    echo $result;
+                    
+                } catch (PDOException $e) {
+                    echo 'Error: ' . $e->getMessage();
+                }
+                break;
+
+            case "userlist": 
+                try {
+                    $pdoObject = $connection->getPDOObject();
+                    $dbCommand = new DBCommand($pdoObject);
+                    $result = $dbCommand->execute('sp_list_users');
+
+                    // Establecer el encabezado para XML
+                    header('Content-Type: text/xml');
+
+                    // Mostrar la respuesta XML
+                    echo $result;
+                    
+                } catch (PDOException $e) {
+                    echo 'Error: ' . $e->getMessage();
+                }
+                break;
+
+            case "accvalidate":
+                $username = isset($_GET['username']) ? $_GET['username'] : '';
+                $password = isset($_GET['password']) ? $_GET['password'] : '';
+
+                
+                try {
+                    $pdoObject = $connection->getPDOObject();
+                    $dbCommand = new DBCommand($pdoObject);
+                    $result = $dbCommand->execute('sp_user_accountvalidate');
+
+                    // Establecer el encabezado para XML
+                    header('Content-Type: text/xml');
+
+                    // Mostrar la respuesta XML
+                    echo $result;
+                    
+                } catch (PDOException $e) {
+                    echo 'Error: ' . $e->getMessage();
+                }
+                break;
         // Resto de los casos
     }
 }
 
 // Register:
 //localhost:40080/gen-web/gen-web/PHP/index.php?action=register&username=pauallende04&name=Pau&lastname=Allende&password=Test12345!!&email=pau@example.com
+
 // Login: 
 //localhost:40080/gen-web/gen-web/PHP/index.php?action=login&username=pauallende04&password=Test12345!!
+
 // Logout: 
 //localhost:40080/gen-web/gen-web/PHP/index.php?action=logout
+
 // Change Password: 
 //localhost:40080/gen-web/gen-web/PHP/index.php?action=changepass&username=pauallende04&password=Test12345!!&newpassword=NewPassword12345!!
+
 // View Active Connections: 
 //localhost:40080/gen-web/gen-web/PHP/index.php?action=viewcon
+
+// View Historical Connections: 
+//localhost:40080/gen-web/gen-web/PHP/index.php?action=viewconhist
 
 
 

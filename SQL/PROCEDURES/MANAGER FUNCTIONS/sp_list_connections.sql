@@ -6,6 +6,9 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    DECLARE @ret INT;
+    SET @ret = -1;
+
     DECLARE @XMLFlag XML;
 
     IF EXISTS (
@@ -20,13 +23,17 @@ BEGIN
     ELSE
     BEGIN
         UPDATE USERS SET LOGIN_STATUS = 0;
-        SET @XMLFlag = (
-            SELECT 500 AS 'StatusCode',
-                   'No se encontraron conexiones activas.' AS 'Message'
-            FOR XML PATH('Error'), ROOT('Errors'), TYPE
-        );
+        SET @ret = 504;
     END
 
-    SELECT @XMLFlag;
+    IF @ret <> -1
+    BEGIN
+        ExitProc:
+        DECLARE @ResponseXML XML;
+        EXEC sp_xml_error_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+        SELECT @ResponseXML;
+    END
+    ELSE
+        SELECT @XMLFlag;
 END;
 GO
