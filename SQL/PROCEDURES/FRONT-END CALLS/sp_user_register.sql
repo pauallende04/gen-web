@@ -15,6 +15,8 @@ BEGIN
     DECLARE @ret INT;
     SET @ret = -1;
 
+    DECLARE @XMLFlag XML;
+
     -- Verificar si el usuario ya existe
     IF dbo.fn_user_exists(@USERNAME) = 1
     BEGIN
@@ -52,8 +54,13 @@ BEGIN
 
                     IF @@ROWCOUNT > 0
                     BEGIN
-                        SET @ret = 0;
-                        GOTO ExitProc;
+                        SET @XMLFlag = (
+                            SELECT 0 AS 'StatusCode', 
+                            'Completado con éxito y correo enviado para verificar el usuario.' AS 'Message'
+                            FOR XML PATH('Success'), ROOT('Successes'), TYPE
+                        );
+
+                        SELECT @XMLFlag;
                     END
                     ELSE
                     BEGIN

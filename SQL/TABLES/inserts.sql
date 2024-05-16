@@ -11,6 +11,7 @@ VALUES
     ('-1', 'Error indefinido'),
     ('0', '¡El proceso a sido un éxito!'),
     ('100', 'Usuario desconectado y registrado en el historial correctamente.'),
+    ('402', 'La nueva contraseña no puede ser igual a la última contraseña.'),
     ('405', 'La conexión especificada no existe.'),
     ('408', 'El correo electrónico ya está registrado'),
     ('409', 'El usuario ya existe'),

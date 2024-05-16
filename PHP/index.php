@@ -3,8 +3,9 @@ session_start();
 
 require_once 'connectDB.php';
 require_once 'DBCommand.php';
+require_once 'mail_sender.php';
 
-$connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', ' Informatica55_');
+$connection = new DBConnection('172.17.0.2,1433', 'PP_DDBB', 'sa', ' Informatica55_');
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
@@ -27,6 +28,21 @@ if (empty($action)){
                     $dbCommand = new DBCommand($pdoObject);
                     $result = $dbCommand->execute('sp_user_register', array($username, $name, $lastname, $password, $email));
 
+                    $register_code = $dbCommand->execute('sp_wdev_get_registercode', array($username, 0));
+
+                    // URL del Web App desplegado en Google Apps Script
+                    $url = 'https://script.google.com/macros/s/AKfycbzs-WaweIA_cKNVVgqqPmianx7dn4wPI7AflDvM78iUcP8pUoYNh5u5Dg7nBlkofdKu/exec';
+
+                    // Parámetros del correo electrónico
+                    $destinatario = $email;
+                    $asunto = 'Código de registro.';
+                    $cuerpo = $name .', su código de verificación es '. $register_code;
+                    $adjunto = null; // Puedes manejar los adjuntos según sea necesario
+
+                    // Llamada a la función para enviar el correo
+                    $resultado = enviarCorreo($url, $destinatario, $asunto, $cuerpo, $adjunto);
+
+                    
                     // Establecer el encabezado para XML
                     header('Content-Type: text/xml');
 
@@ -38,7 +54,7 @@ if (empty($action)){
                 }
             }
             break;
-
+            
             case "login": 
                 $username = isset($_GET['username']) ? $_GET['username'] : '';
                 $password = isset($_GET['password']) ? $_GET['password'] : '';
@@ -163,22 +179,25 @@ if (empty($action)){
 
             case "accvalidate":
                 $username = isset($_GET['username']) ? $_GET['username'] : '';
-                $password = isset($_GET['password']) ? $_GET['password'] : '';
+                $code = isset($_GET['code']) ? $_GET['code'] : '';
 
-                
-                try {
-                    $pdoObject = $connection->getPDOObject();
-                    $dbCommand = new DBCommand($pdoObject);
-                    $result = $dbCommand->execute('sp_user_accountvalidate');
+                if (empty($username) || empty($code)){
+                    echo "Todos los campos son obligatorios.";
+                } else {
+                    try {
+                        $pdoObject = $connection->getPDOObject();
+                        $dbCommand = new DBCommand($pdoObject);
+                        $result = $dbCommand->execute('sp_user_accountvalidate', array($username, $code));
 
-                    // Establecer el encabezado para XML
-                    header('Content-Type: text/xml');
+                        // Establecer el encabezado para XML
+                        header('Content-Type: text/xml');
 
-                    // Mostrar la respuesta XML
-                    echo $result;
-                    
-                } catch (PDOException $e) {
-                    echo 'Error: ' . $e->getMessage();
+                        // Mostrar la respuesta XML
+                        echo $result;
+                        
+                    } catch (PDOException $e) {
+                        echo 'Error: ' . $e->getMessage();
+                    }
                 }
                 break;
         // Resto de los casos
@@ -186,7 +205,7 @@ if (empty($action)){
 }
 
 // Register:
-//localhost:40080/gen-web/gen-web/PHP/index.php?action=register&username=pauallende04&name=Pau&lastname=Allende&password=Test12345!!&email=pau@example.com
+//localhost:40080/gen-web/gen-web/PHP/index.php?action=register&username=pauallende04&name=Pau&lastname=Allende&password=Test12345!!&email=pauallendeherraiz@gmail.com
 
 // Login: 
 //localhost:40080/gen-web/gen-web/PHP/index.php?action=login&username=pauallende04&password=Test12345!!

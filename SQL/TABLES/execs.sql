@@ -44,3 +44,6 @@ EXEC sp_user_get_accountdata
 
 ---
 EXEC sp_list_connections;
+
+
+EXEC sp_get_registercode @USERNAME="pauallende05",@REGISTER_CODE=0
