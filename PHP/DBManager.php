@@ -36,8 +36,6 @@ class DBManager {
             echo 'Error: ' . $e->getMessage();
         }
     }
-
-    // Otras funciones relacionadas con la gestión de la base de datos
 }
 
 ?>

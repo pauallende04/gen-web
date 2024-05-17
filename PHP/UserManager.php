@@ -114,7 +114,6 @@ class UserManager {
             }
         }
     }
-    // Otras funciones relacionadas con la gestión de usuarios
 }
 
 ?>
