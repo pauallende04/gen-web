@@ -31,17 +31,17 @@ BEGIN
         GOTO ExitProc;
     END
 
-    -- -- Verificar si la nueva contraseña es igual a alguna de las tres últimas contraseñas
-    -- IF dbo.fn_compare_soundex(@NEW_PASSWORD, @USER_ID) = 1
-    -- BEGIN
-    --     SET @XMLFlag = (
-    --         SELECT 402 AS 'StatusCode',
-    --             'La nueva contraseña no pue  de ser igual a una de las tres últimas contraseñas.' AS 'Message'
-    --         FOR XML PATH('Error'), ROOT('Errors'), TYPE
-    --     );
-    --     SELECT @XMLFlag;
-    --     RETURN;
-    -- END
+    -- Verificar si la nueva contraseña es igual a alguna de las tres últimas contraseñas
+    IF dbo.fn_compare_soundex(@NEW_PASSWORD, @USER_ID) = 1
+    BEGIN
+        SET @XMLFlag = (
+            SELECT 402 AS 'StatusCode',
+                'La nueva contraseña no pue  de ser igual a una de las tres últimas contraseñas.' AS 'Message'
+            FOR XML PATH('Error'), ROOT('Errors'), TYPE
+        );
+        SELECT @XMLFlag;
+        RETURN;
+    END
 
     -- Verificar si la nueva contraseña es igual a la última contraseña
     IF dbo.fn_compare_passwords(@NEW_PASSWORD, @USER_ID) = 1
