@@ -9,7 +9,12 @@ require_once 'UserManager.php';
 require_once 'DBManager.php';
 
 // Crear una instancia de DBCommand
+
+//Conexion sql pol
 $connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', ' Informatica55_');
+
+//Conexion sql pau
+$connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', 'P@ssw0rd');
 
 $pdoObject = $connection->getPDOObject();
 
