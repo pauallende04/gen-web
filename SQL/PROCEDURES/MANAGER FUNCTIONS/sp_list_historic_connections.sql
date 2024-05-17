@@ -19,13 +19,14 @@ BEGIN
             SELECT HISTORY_ID,USERNAME,DATE_CONNECTED,DATE_DISCONNECTED FROM USER_CONNECTIONS_HISTORY
             FOR XML PATH('HistoricConnections'), ROOT('HistoricConnections'), TYPE
         );
+        SET @ret = 0; -- Indicar que hubo resultados
     END
     ELSE
     BEGIN
         SET @ret = 505; -- Indicar que hubo resultados
     END
     
-    IF @ret <> -1
+    IF @ret <> 0
     BEGIN
         ExitProc:
         DECLARE @ResponseXML XML;
@@ -37,4 +38,5 @@ BEGIN
 END;
 GO
 
+exec sp_list_historic_connections
 

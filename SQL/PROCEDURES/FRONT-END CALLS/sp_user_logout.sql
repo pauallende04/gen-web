@@ -1,71 +1,44 @@
 USE PP_DDBB;
 GO
 
--- sp_user_logout
 CREATE OR ALTER PROCEDURE sp_user_logout
-    @USERNAME NVARCHAR(25)
+    @USERNAME NVARCHAR(25) 
 AS
 BEGIN
     SET NOCOUNT ON;
     
     DECLARE @ret INT;
-    SET @ret = -1;
-
     DECLARE @USER_ID INT;
     DECLARE @DATE_CONNECTED DATETIME;
+    DECLARE @DATE_DISCONNECTED DATETIME;
+
+    SET @DATE_DISCONNECTED = GETDATE();
 
     -- Comprueba si el usuario está conectado
-    IF EXISTS (
-        SELECT 1 FROM USER_CONNECTIONS WHERE USERNAME = @USERNAME
-    )
-    BEGIN
-        -- Obtén la información de la conexión
-        SELECT 
-            USER_ID, 
-            USERNAME, 
-            DATE_CONNECTED 
-        INTO #TempConnectionInfo
-        FROM USER_CONNECTIONS 
-        WHERE USERNAME = @USERNAME;
+    EXEC sp_wdev_check_user_connection @USERNAME, @USER_ID OUTPUT, @DATE_CONNECTED OUTPUT, @ret OUTPUT;
 
+    IF @ret = 100
+    BEGIN
         -- Insertar en USER_CONNECTIONS_HISTORY antes de eliminar
-        INSERT INTO USER_CONNECTIONS_HISTORY(
-            USER_ID, 
-            USERNAME, 
-            DATE_CONNECTED, 
-            DATE_DISCONNECTED
-        )
-        SELECT 
-            USER_ID, 
-            USERNAME, 
-            DATE_CONNECTED, 
-            CONVERT(DATETIME, SWITCHOFFSET(SYSDATETIMEOFFSET(), '+02:00')) -- fecha de desconexión
-        FROM #TempConnectionInfo;
+        EXEC sp_wdev_insert_user_connection_history 
+            @USER_ID, 
+            @USERNAME, 
+            @DATE_CONNECTED, 
+            @DATE_DISCONNECTED -- fecha de desconexión
+
 
         -- Eliminar de USER_CONNECTIONS
         DELETE FROM USER_CONNECTIONS WHERE USERNAME = @USERNAME;
 
         IF @@ROWCOUNT = 1
         BEGIN
-            -- Limpiar la tabla temporal
-            DROP TABLE #TempConnectionInfo;
+            -- Actualizar estado de conexión en USERS
+            EXEC sp_wdev_update_user_login_status_0 @USERNAME;
 
-            --establece valor conexion a 0
-            UPDATE USERS SET LOGIN_STATUS = 0 WHERE USERNAME = @USERNAME;
-
-            SET @ret = 100;
-            GOTO ExitProc;
+            SET @ret = 0; -- Éxito
         END
-
-    END
-    ELSE
-    BEGIN
-        SET @ret = 405;
-        GOTO ExitProc;
-        -- RAISERROR('La conexión especificada no existe.', 16, 1);
     END
 
-    ExitProc:
     DECLARE @ResponseXML XML;
     EXEC sp_xml_error_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
     SELECT @ResponseXML;

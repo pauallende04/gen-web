@@ -23,19 +23,18 @@ BEGIN
     END
     ELSE
     BEGIN
-        -- Si no hay errores, generar un mensaje claro
-        DECLARE @ErrorMessage NVARCHAR(100);
-        SET @ErrorMessage = 'No se encontraron errores.';
-        SET @XMLFlag = (
-            SELECT @ErrorMessage AS ErrorMessage
-            FOR XML PATH('Error'), ROOT('Errors'), TYPE
-        );
+        SET @ret = 508;
     END
 
-    -- Devolver el resultado XML
-    SELECT @XMLFlag;
-
-    RETURN @ret; -- Devolver el valor de retorno
+    IF @ret <> 0
+    BEGIN
+        ExitProc:
+        DECLARE @ResponseXML XML;
+        EXEC sp_xml_error_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+        SELECT @ResponseXML;
+    END
+    ELSE
+        SELECT @XMLFlag;
 END;
 GO
 

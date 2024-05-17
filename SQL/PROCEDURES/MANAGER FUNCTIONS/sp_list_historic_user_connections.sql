@@ -21,26 +21,25 @@ BEGIN
         -- Si hay conexiones, convertir el conjunto de resultados a XML
         SET @XMLFlag = (
             SELECT HISTORY_ID,USERNAME,DATE_CONNECTED,DATE_DISCONNECTED FROM USER_CONNECTIONS_HISTORY WHERE USERNAME = @USERNAME
-            FOR XML PATH('UsersConnection'), ROOT('UserConnections'), TYPE
+            FOR XML PATH('UserConnection'), ROOT('UsersConnections'), TYPE
         );
         SET @ret = 0; -- Indicar que hubo resultados
     END
     ELSE
     BEGIN
-        -- Si no hay conexiones, generar un mensaje claro
-        DECLARE @ErrorMessage NVARCHAR(100);
-        SET @ErrorMessage = 'No se encontró historial para el usuario.';
-        SET @XMLFlag = (
-            SELECT @ErrorMessage AS ErrorMessage
-            FOR XML PATH('Error'), ROOT('UserConnections'), TYPE
-        );
+        SET @ret = 507;
     END
 
-    -- Devolver el resultado XML
-    SELECT @XMLFlag;
-
-    RETURN @ret; -- Devolver el valor de retorno
+    IF @ret <> 0
+    BEGIN
+        ExitProc:
+        DECLARE @ResponseXML XML;
+        EXEC sp_xml_error_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+        SELECT @ResponseXML;
+    END
+    ELSE
+        SELECT @XMLFlag;
 END;
 GO
 
-EXEC sp_list_historic_user_connections @USERNAME = 'pauallende04';
+EXEC sp_list_historic_user_connections @USERNAME = 'PauAllendee';

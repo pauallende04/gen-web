@@ -10,8 +10,8 @@ require_once 'DBManager.php';
 
 // Crear una instancia de DBCommand
 
-//Conexion sql pol
-$connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', ' Informatica55_');
+// //Conexion sql pol
+// $connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', ' Informatica55_');
 
 //Conexion sql pau
 $connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', 'P@ssw0rd');
@@ -62,23 +62,32 @@ if (empty($action)) {
     }
 }
 
+// Register:
+// localhost:40080/gen-web/gen-web/PHP/index.php?action=register&username=polrabascall&name=Pol&lastname=Rabascall&password=Test12345!!&email=polrabascall@gmail.com
+// http://localhost:40080/gen-web/PHP/index.php?action=register&username=PauAllendee&name=Pau&lastname=Allende&password=C0ntraseña2004!!&email=pauallendeherraiz@gmail.com
 
-// / URL del Web App desplegado en Google Apps Script
-// $url = 'https://script.google.com/macros/s/AKfycbzs-WaweIA_cKNVVgqqPmianx7dn4wPI7AflDvM78iUcP8pUoYNh5u5Dg7nBlkofdKu/exec';
+// Account Validate:
+// http://localhost:40080/gen-web/PHP/index.php?action=accvalidate&username=polrabascall&code=
+// http://localhost:40080/gen-web/PHP/index.php?action=accvalidate&username=PauAllendee&code=40381
 
-// // Parámetros del correo electrónico
-// $destinatario = 'pauallendeherraiz@gmail.com';
-// $asunto = 'Asunto del correo';
-// $cuerpo = 'Cuerpo del correo';
-// $adjunto = null; // Puedes manejar los adjuntos según sea necesario
+// Login: 
+// localhost:40080/gen-web/gen-web/PHP/index.php?action=login&username=polrabascall&password=Test12345!!
+// http://localhost:40080/gen-web/PHP/index.php?action=login&username=PauAllendee&password=C0ntraseña2004!!
 
-// // Llamada a la función para enviar el correo
-// $resultado = enviarCorreo($url, $destinatario, $asunto, $cuerpo, $adjunto);
+// Logout: 
+// localhost:40080/gen-web/gen-web/PHP/index.php?action=logout
+// http://localhost:40080/gen-web/PHP/index.php?action=logout
 
-// if ($resultado) {
-//     echo 'Correo enviado con éxito';
-// } else {
-//     echo 'Error al enviar el correo';
-// }
-// ?
+// Change Password:
+// localhost:40080/gen-web/gen-web/PHP/index.php?action=changepass&username=polrabascall&password=Test12345!!&newpassword=NewPassword12345!!
+// http://localhost:40080/gen-web/PHP/index.php?action=changepass&username=PauAllendee&password=C0ntraseña2004!!&newpassword=NewPassword12345!!
+
+// View Active Connections: 
+// localhost:40080/gen-web/gen-web/PHP/index.php?action=viewcon
+// http://localhost:40080/gen-web/PHP/index.php?action=viewcon
+
+// View Historical Connections: 
+//localhost:40080/gen-web/gen-web/PHP/index.php?action=viewconhist
+// http://localhost:40080/gen-web/PHP/index.php?action=viewconhist
+
 ?>

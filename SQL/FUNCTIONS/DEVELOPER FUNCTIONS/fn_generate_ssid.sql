@@ -19,5 +19,3 @@ BEGIN
     return @ssid
 END
 GO
-
-select dbo.fn_generate_ssid();

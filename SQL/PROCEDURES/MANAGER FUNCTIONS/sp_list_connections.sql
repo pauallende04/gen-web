@@ -19,6 +19,7 @@ BEGIN
             SELECT * FROM USER_CONNECTIONS
             FOR XML PATH('Connection'), ROOT('Connections'), TYPE
         );
+        SET @ret = 0;
     END
     ELSE
     BEGIN
@@ -26,7 +27,7 @@ BEGIN
         SET @ret = 504;
     END
 
-    IF @ret <> -1
+    IF @ret <> 0
     BEGIN
         ExitProc:
         DECLARE @ResponseXML XML;
@@ -37,3 +38,5 @@ BEGIN
         SELECT @XMLFlag;
 END;
 GO
+
+exec sp_list_connections

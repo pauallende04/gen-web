@@ -28,20 +28,19 @@ BEGIN
     END
     ELSE
     BEGIN
-        -- Si no hay datos, generar un mensaje claro
-        DECLARE @ErrorMessage NVARCHAR(100);
-        SET @ErrorMessage = 'No se encontraron usuarios con estado definido.';
-        SET @XMLFlag = (
-            SELECT @ErrorMessage AS ErrorMessage
-            FOR XML PATH('Error'), ROOT('SystemStatus'), TYPE
-        );
+        SET @ret = 506;
     END
 
-    -- Devolver el resultado XML
-    SELECT @XMLFlag;
-
-    RETURN @ret; -- Devolver el valor de retorno
+    IF @ret <> 0
+    BEGIN
+        ExitProc:
+        DECLARE @ResponseXML XML;
+        EXEC sp_xml_error_message @RETURN = @ret, @XmlResponse = @ResponseXML OUTPUT;
+        SELECT @ResponseXML;
+    END
+    ELSE
+        SELECT @XMLFlag;
 END;
 GO
 
-EXEC sp_list_system_status;
+exec sp_list_system_status

@@ -1,30 +1,36 @@
 USE PP_DDBB;
+GO
 
--- fn_compare_passwords
-go
 CREATE OR ALTER FUNCTION fn_compare_passwords
 (
     @NEW_PASSWORD NVARCHAR(50),
-    @USER_ID INT
+    @USERNAME NVARCHAR(50)
 )
 RETURNS INT
 AS
 BEGIN
-    DECLARE @lastPassword NVARCHAR(50);
+    DECLARE @pwd NVARCHAR(50);
 
-    -- Obtener la última contraseña del usuario
-    SELECT TOP 1 @lastPassword = OLD_PASSWORD
-    FROM PWD_HISTORY
-    WHERE USER_ID = @USER_ID
-    ORDER BY DATE_CHANGED DESC;
-
-    -- Verificar si la nueva contraseña es igual a la última contraseña
-    IF @NEW_PASSWORD <> @lastPassword
+    IF EXISTS (SELECT 1 FROM USERS WHERE USERNAME = @USERNAME)
     BEGIN
-        RETURN 0; -- La nueva contraseña es igual a la última contraseña
+        SELECT @pwd = PASSWORD
+        FROM USERS
+        WHERE USERNAME = @USERNAME;
+
+        -- Usando CASE para la comparación
+        RETURN (
+            SELECT CASE
+                WHEN @NEW_PASSWORD IS NOT NULL AND @NEW_PASSWORD = @pwd THEN 1
+                ELSE 0
+            END
+        );
     END
     ELSE
     BEGIN
-        RETURN 1; -- La nueva contraseña no es igual a la última contraseña
+        RETURN 0; -- El usuario no existe, así que asumimos que la contraseña no es igual
     END
+
+    -- Este return es redundante, pero se deja como salvaguarda
+    RETURN -1;
 END;
+GO

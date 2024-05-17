@@ -1,0 +1,25 @@
+USE PP_DDBB;
+GO
+
+CREATE OR ALTER PROCEDURE sp_wdev_user_get_login_status
+    @USERNAME NVARCHAR(25),
+    @LOGIN_STATUS BIT OUTPUT,
+    @ret INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT @LOGIN_STATUS = LOGIN_STATUS
+    FROM USERS
+    WHERE USERNAME = @USERNAME;
+
+    IF @LOGIN_STATUS = 1
+    BEGIN
+        SET @ret = 500;
+    END
+    ELSE
+    BEGIN
+        SET @ret = 0;
+    END
+END;
+GO

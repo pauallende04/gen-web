@@ -8,14 +8,12 @@ CREATE OR ALTER PROCEDURE sp_user_register
     @LASTNAME NVARCHAR(50),
     @PASSWORD NVARCHAR(50),
     @EMAIL NVARCHAR(30)
-AS
+AS 
 BEGIN
     SET NOCOUNT ON;
 
     DECLARE @ret INT;
     SET @ret = -1;
-
-    DECLARE @XMLFlag XML;
 
     -- Verificar si el usuario ya existe
     IF dbo.fn_user_exists(@USERNAME) = 1
@@ -54,13 +52,8 @@ BEGIN
 
                     IF @@ROWCOUNT > 0
                     BEGIN
-                        SET @XMLFlag = (
-                            SELECT 0 AS 'StatusCode', 
-                            'Completado con éxito y correo enviado para verificar el usuario.' AS 'Message'
-                            FOR XML PATH('Success'), ROOT('Successes'), TYPE
-                        );
-
-                        SELECT @XMLFlag;
+                        SET @ret = 0  
+                        GOTO ExitProc;
                     END
                     ELSE
                     BEGIN

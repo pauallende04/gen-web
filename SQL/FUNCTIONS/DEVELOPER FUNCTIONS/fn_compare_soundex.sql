@@ -1,33 +1,42 @@
 USE PP_DDBB;
+GO
 
--- fn_compare_passwords
-go
-CREATE OR ALTER FUNCTION fn_compare_soundex
-(
-    @newPassword NVARCHAR(50),
-    @userId INT
+CREATE OR ALTER FUNCTION fn_compare_soundex (
+    @USERNAME NVARCHAR(25),
+    @NEW_PASSWORD NVARCHAR(50)
 )
-RETURNS INT
+RETURNS BIT
 AS
 BEGIN
-    -- Obtener la última contraseña del usuario
-    SELECT TOP 3 OLD_PASSWORD
-    FROM PWD_HISTORY
-    WHERE USER_ID = @userId
-    ORDER BY DATE_CHANGED DESC;
+    DECLARE @USER_ID INT;
+    DECLARE @RESULT BIT = 1; -- 1 significa que no suena igual a las 3 últimas contraseñas
+    
+    -- Obtener el ID del usuario
+    SELECT @USER_ID = ID
+    FROM USERS
+    WHERE USERNAME = @USERNAME;
 
-     -- Verificar si el Soundex de la nueva contraseña coincide con el de alguna de las últimas tres contraseñas
+    -- Si el usuario no existe, retornar 1
+    IF @USER_ID IS NULL
+    BEGIN
+        RETURN @RESULT;
+    END
+
+    -- Verificar las últimas 3 contraseñas
     IF EXISTS (
-        SELECT 1 
-        FROM @lastThreePasswords 
-        WHERE SOUNDEX(Password) = @newPasswordSoundex
+        SELECT 1
+        FROM (
+            SELECT TOP 3 OLD_PASSWORD
+            FROM PWD_HISTORY
+            WHERE USER_ID = @USER_ID
+            ORDER BY DATE_CHANGED DESC
+        ) AS LastPasswords
+        WHERE SOUNDEX(OLD_PASSWORD) = SOUNDEX(@NEW_PASSWORD)
     )
     BEGIN
-        RETURN 1; -- La nueva contraseña tiene un Soundex similar al de una de las últimas tres contraseñas
+        SET @RESULT = 0; -- 0 significa que suena igual a una de las 3 últimas contraseñas
     END
-    ELSE
-    BEGIN
-        RETURN 0; -- La nueva contraseña no tiene un Soundex similar al de ninguna de las últimas tres contraseñas
-    END
-    RETURN -1;
+
+    RETURN @RESULT;
 END;
+GO
