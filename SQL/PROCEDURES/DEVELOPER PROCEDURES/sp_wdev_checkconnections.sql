@@ -1,5 +1,5 @@
 
--- USE PP_DDBB;
+USE PP_DDBB;
 
 -- -- sp_wdev_user_insert
 -- go

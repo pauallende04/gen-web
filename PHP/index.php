@@ -11,10 +11,10 @@ require_once 'DBManager.php';
 // Crear una instancia de DBCommand
 
 // //Conexion sql pol
-// $connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', ' Informatica55_');
+$connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', ' Informatica55_');
 
 //Conexion sql pau
-$connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', 'P@ssw0rd');
+// $connection = new DBConnection('172.17.0.3,1433', 'PP_DDBB', 'sa', 'P@ssw0rd');
 
 $pdoObject = $connection->getPDOObject();
 
@@ -67,7 +67,7 @@ if (empty($action)) {
 // http://localhost:40080/gen-web/PHP/index.php?action=register&username=PauAllendee&name=Pau&lastname=Allende&password=C0ntraseña2004!!&email=pauallendeherraiz@gmail.com
 
 // Account Validate:
-// http://localhost:40080/gen-web/PHP/index.php?action=accvalidate&username=polrabascall&code=
+// http://localhost:40080/gen-web/gen-web/PHP/index.php?action=accvalidate&username=polrabascall&code=
 // http://localhost:40080/gen-web/PHP/index.php?action=accvalidate&username=PauAllendee&code=40381
 
 // Login: 

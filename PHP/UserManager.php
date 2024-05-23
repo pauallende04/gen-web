@@ -19,8 +19,12 @@ class UserManager {
                 $register_code = $this->dbCommand->execute('sp_wdev_get_registercode', array($username, 0));
 
                 // URL del Web App desplegado en Google Apps Script
-                $url = 'https://script.google.com/macros/s/AKfycbzs-WaweIA_cKNVVgqqPmianx7dn4wPI7AflDvM78iUcP8pUoYNh5u5Dg7nBlkofdKu/exec';
-
+                //url pau
+                // $url = 'https://script.google.com/macros/s/AKfycbzs-WaweIA_cKNVVgqqPmianx7dn4wPI7AflDvM78iUcP8pUoYNh5u5Dg7nBlkofdKu/exec';
+                
+                //url Pol
+                $url = 'https://script.google.com/macros/s/AKfycbyot1qJnOEJk6AWjOFKg9aW2IFoocmMFPXwfRUAzPwFgbnmgBIRWKboFUUwlyKQvVc/exec';
+                
                 // Parámetros del correo electrónico
                 $destinatario = $email;
                 $asunto = 'Código de registro.';
