@@ -13,22 +13,24 @@ BEGIN
 
     DECLARE @XMLFlag XML;
 
-    -- Verificar si hay conexiones para el usuario
-    IF EXISTS (
-        SELECT 1 
-    )
-    BEGIN
-        -- Si hay conexiones, convertir el conjunto de resultados a XML
-        SET @XMLFlag = (
-            SELECT HISTORY_ID,USERNAME,DATE_CONNECTED,DATE_DISCONNECTED FROM USER_CONNECTIONS_HISTORY WHERE USERNAME = @USERNAME
-            FOR XML PATH('UserConnection'), ROOT('UsersConnections'), TYPE
-        );
-        SET @ret = 0; -- Indicar que hubo resultados
-    END
-    ELSE
-    BEGIN
-        SET @ret = 507;
-    END
+    --veifica estado usuaio
+    if
+        -- Verificar si hay conexiones para el usuario
+        IF EXISTS (
+            SELECT 1 
+        )
+        BEGIN
+            -- Si hay conexiones, convertir el conjunto de resultados a XML
+            SET @XMLFlag = (
+                SELECT HISTORY_ID,USERNAME,DATE_CONNECTED,DATE_DISCONNECTED FROM USER_CONNECTIONS_HISTORY WHERE USERNAME = @USERNAME
+                FOR XML PATH('UserConnection'), ROOT('UsersConnections'), TYPE
+            );
+            SET @ret = 0; -- Indicar que hubo resultados
+        END
+        ELSE
+        BEGIN
+            SET @ret = 507;
+        END
 
     IF @ret <> 0
     BEGIN

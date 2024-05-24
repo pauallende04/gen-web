@@ -31,4 +31,5 @@ VALUES
     ('700', 'El usuario especificado no existe.'),
     ('701', 'La cuenta del usuario ya está activada.'), 
     ('702', 'El código de registro proporcionado no es válido.'), 
-    ('703', 'No se pudo actualizar el estado del usuario.');
+    ('703', 'No se pudo actualizar el estado del usuario.'),
+    ('800', 'No tienes permisos de administrador.');

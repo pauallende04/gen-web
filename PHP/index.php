@@ -36,6 +36,14 @@ if (empty($action)) {
         case "register":
             $userManager->register($_GET['username'], $_GET['name'], $_GET['lastname'], $_GET['password'], $_GET['email']);
             break;
+        case "register2":
+            $username = $_GET['username'];
+            $name = $_GET['name'];
+            $lastname = $_GET['lastname'];
+            $password = $_GET['password'];
+            $email = $_GET['email'];
+            $userManager->register($username, $name, $lastname, $password, $email);
+            break;
         case "login":
             $userManager->login($_GET['username'], $_GET['password']);
             break;
@@ -53,6 +61,8 @@ if (empty($action)) {
             break;
         case "accvalidate":
             $userManager->accountValidate($_GET['username'],$_GET['code']);
+        case "listusers":
+            $userManager->listusers($_GET['ssid']);
 
             break;
 
@@ -89,5 +99,8 @@ if (empty($action)) {
 // View Historical Connections: 
 //localhost:40080/gen-web/gen-web/PHP/index.php?action=viewconhist
 // http://localhost:40080/gen-web/PHP/index.php?action=viewconhist
+
+
+//localhost:40080/gen-web/gen-web/PHP/index.php?action=listusers&ssid=a0b39afe-6971-4d0c-85ca-d63bb5d07de2
 
 ?>
