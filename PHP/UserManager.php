@@ -30,7 +30,7 @@ class UserManager {
                 $asunto = 'Código de registro.';
                 $cuerpo = $name . ', su código de verificación es ' . $register_code;
                 $adjunto = null; 
-
+                
                 // Llamada a la función para enviar el correo
                 $resultado = enviarCorreo($url, $destinatario, $asunto, $cuerpo, $adjunto);
 
@@ -106,6 +106,25 @@ class UserManager {
         } else {
             try {
                 $result = $this->dbCommand->execute('sp_user_accountvalidate', array($username, $code));
+
+                // Establecer el encabezado para XML
+                header('Content-Type: text/xml');
+
+                // Mostrar la respuesta XML
+                echo $result;
+                
+            } catch (PDOException $e) {
+                echo 'Error: ' . $e->getMessage();
+            }
+        }
+    }
+
+    public function listusers($ssid){
+        if (empty($ssid)){
+            echo "Todos los campos son obligatorios.";
+        } else {
+            try {
+                $result = $this->dbCommand->execute('sp_list_users2', array($ssid));
 
                 // Establecer el encabezado para XML
                 header('Content-Type: text/xml');
